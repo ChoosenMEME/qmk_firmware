@@ -65,7 +65,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_UML] = LAYOUT(
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,
-        _______, _______, _______, _______, _______, _______, _______, DE_UDIA, _______, DE_ODIA, _______, _______, _______, RESET,            _______,
+        _______, _______, _______, _______, _______, _______, _______, DE_UDIA, _______, DE_ODIA, _______, _______, _______, QK_BOOT,          _______,
         _______, DE_ADIA, DE_SS,   _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,          _______,
         _______,          _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______, RGB_TOG,
         _______, _______, _______,                            _______,                            _______, _______, _______, _______, _______, _______
@@ -83,26 +83,25 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 */
 };
 
-bool encoder_update_user(uint8_t index, bool clockwise) {
-    if (clockwise) {
-      tap_code(KC_VOLU);
-    } else {
-      tap_code(KC_VOLD);
-    }
-    return true;
-}
+#if defined(ENCODER_MAP_ENABLE)
+const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
+    [_DEF] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
+    [_NOMOD] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
+    [_UML] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS) }
+};
+#endif
 
-#ifdef RGB_MATRIX_ENABLE
-void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+#if defined(RGB_MATRIX_ENABLE)
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     switch(get_highest_layer(layer_state|default_layer_state)) {
         case _DEF:
-            rgb_matrix_set_color_all(RGB_YELLOW);
-            break;
-        case _NOMOD:
             rgb_matrix_set_color_all(RGB_GREEN);
             break;
+        case _NOMOD:
+            rgb_matrix_set_color_all(RGB_BLUE);
+            break;
         case _UML:
-            rgb_matrix_set_color_all(RGB_YELLOW);
+            rgb_matrix_set_color_all(RGB_GREEN);
             for (uint8_t i=0; i<(sizeof(LED_LIST_UML)); i++) {
                 rgb_matrix_set_color(LED_LIST_UML[i], RGB_RED);
             }
@@ -110,5 +109,6 @@ void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         default:
             break;
     }
+    return false;
 }
 #endif
